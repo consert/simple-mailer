@@ -12,7 +12,7 @@ MAIL_PASS = 'very_secret'
 MAIL_SUBJECT = 'Mail Subject'
 
 app.config.update(
-    MAIL_SERVER='smtp.gmail.com',
+    MAIL_SERVER='smtp.example.com',
     MAIL_PORT=587,
     MAIL_USE_SSL=False,
     MAIL_USE_TLS=True,

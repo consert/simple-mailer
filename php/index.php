@@ -7,12 +7,12 @@ function sendSmtpMail($to, $from, $from_name, $subject, $body) {
     $mail->CharSet = 'UTF-8';
     $mail->isSMTP();
     $mail->SMTPDebug = 0;
-    $mail->SMTPAuth = true;
-    $mail->SMTPSecure = 'tls';
-    $mail->Host = 'smtp.gmail.com';
-    $mail->Port = 587;
-    $mail->Username = MAILUSER;
-    $mail->Password = MAILPASS;
+    $mail->SMTPAuth = SMTP_AUTH;
+    $mail->SMTPSecure = SMTP_SECURE;
+    $mail->Host = SMTP_HOST;
+    $mail->Port = SMTP_PORT;
+    $mail->Username = MAIL_USER;
+    $mail->Password = MAIL_PASSWORD;
     $mail->setFrom($from, $from_name);
     $mail->Subject = $subject;
     $mail->Body = $body;
@@ -41,9 +41,8 @@ if (!file_exists($target)) {
 if (array_key_exists('mailto', $data) ) {
     $mailto = [$data['mailto']];
     $toSend = json_encode($data, JSON_UNESCAPED_UNICODE);
-    if (sendSmtpMail($mailto, MAILUSER, MAILNAME, MAILSUBJECT, $toSend)) {
-    $data = file_get_contents($target);
-        echo json_encode(['success' => false]);
+    if (sendSmtpMail($mailto, MAIL_USER, MAIL_NAME, MAIL_SUBJECT, $toSend)) {
+        echo json_encode(['success' => true]);
     } else {
         header('Internal Server Error', true,500);
         echo json_encode(['success' => false]);
