@@ -1,0 +1,30 @@
+{
+  "name": "trillion-flic-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/pm2 start index.js -n flic-server -f",
+    "dev": "./node_modules/.bin/nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/consert/trillion-flic-server.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/consert/trillion-flic-server/issues"
+  },
+  "homepage": "https://github.com/consert/trillion-flic-server#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "nodemailer": "^4.4.0",
+    "pm2": "^2.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
+}
