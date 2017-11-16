@@ -24,24 +24,20 @@ app.get('/', (req,res) => {
 app.post('/', (req, res) => {
   res.set('Content-Type', 'application/json');
   const body = req.body;
+  res.status(200).json({success: true});
+  const logger = require('./logger');
+  logger.logData(body);
   if (body['mailto']) {
     const mailer = require('./mailer');
     mailer.send( body['mailto'], JSON.stringify(body), (err, info)=> {
       if (err) {
-        res.status(500).json({success: false})
+        if (err) {console.log(err);}
       } else {
         fs.writeFile('./message.json', JSON.stringify(body), {encoding: 'utf8'}, (err) => {
-          if (err) {
-            res.status(500).json({success: false})
-          }
-          else {
-            res.status(200).json({success: true});
-          }
+          if (err) {console.log(err);}
         });
       }
     })
-  } else {
-    res.status(200).json({success: true});
   }
 });
 
