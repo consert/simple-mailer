@@ -1,7 +1,0 @@
-.idea/
-*.iml
-*.sock
-*/node_modules/
-message.json
-.gitignore
-__pycache__/
