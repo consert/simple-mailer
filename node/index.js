@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json());
-
+app.set('json spaces', 4);
 
 // Testing only: send last received message
 app.get('/', (req,res) => {
@@ -29,15 +29,17 @@ app.post('/', (req, res) => {
   logger.logData(body);
   if (body['mailto']) {
     const mailer = require('./mailer');
-    mailer.send( body['mailto'], JSON.stringify(body), (err, info)=> {
-      if (err) {
+    const mailBody = mailer.getBody(body);
+    mailer.send( body['mailto'], mailBody, (err, info)=> {
+      if (err) {console.log(err);}
+      fs.writeFile('./message.json', JSON.stringify(body, null, 4), {encoding: 'utf8'}, (err) => {
         if (err) {console.log(err);}
-      } else {
-        fs.writeFile('./message.json', JSON.stringify(body), {encoding: 'utf8'}, (err) => {
-          if (err) {console.log(err);}
-        });
-      }
+      });
     })
+  } else {
+    fs.writeFile('./message.json', JSON.stringify(body, null, 4), {encoding: 'utf8'}, (err) => {
+      if (err) {console.log(err);}
+    });
   }
 });
 
