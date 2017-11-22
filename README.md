@@ -1,6 +1,30 @@
-# trillion-flic-server
+# Simple server apps to send mail
+Three examples for logging and sending emails using smtp when receiving a POST request with a "mailto" key. Examples are in php, Node.js and Python (flask).
+The apps expect a posted json (content-type:application/json) in a format like:
 
-  ### node.js:
+    {
+      "data": {
+        "anonymous": Bool,
+        "description": "string",
+        "eventDateTime": "string",
+        "location": {
+            "address": "string",
+            "latitude": float,
+            "longitude": float
+          },
+         "user": "string"|null (if anonymous)
+      },
+      "mailto": "user@exaplme.com"
+    }
+If the anonymous key is used, this means the post request was made through the [PPCG](https://vm15.openstack.puas.gr) Privacy Protection Communication Gateway     
+  
+Libraries used for mail: 
+  
+  * php: [phpmailer](https://github.com/PHPMailer/PHPMailer), licence: [LGPL](https://github.com/PHPMailer/PHPMailer/blob/master/LICENSE)
+  * Node.js: [nodemailer](https://github.com/nodemailer/nodemailer),licence: [MIT](https://github.com/nodemailer/nodemailer/blob/master/LICENSE)
+  * Python: [Flask-Mail](https://github.com/mattupstate/flask-mail), licence: [BSD 3-clause](https://github.com/mattupstate/flask-mail/blob/master/LICENSE)
+  ### Instructions:
+  #### Node.js:
     cd node && npm install
   Change mail settings on config.js file:
 
@@ -20,7 +44,7 @@
     
     npm run start
 
-  ### php:
+  #### php:
   change mail options on php/config.php:
 
     define('MAIL_USER','user@example.com');
@@ -32,7 +56,7 @@
     define('SMTP_HOST', 'smtp.example.com');
     define('SMTP_PORT',587);
     
-  ### python:
+  #### Python:
   from virtualenv or not:
   
     cd python && pip install -r requirements.txt
@@ -56,7 +80,7 @@
     uwsgi --ini flic.ini
   
     
-  ### example nginx server config parts:
+  ### Example nginx server config parts:
   
     # PHP:
     root /path/to/trillion-flic-server/php;
