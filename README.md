@@ -21,12 +21,12 @@ If the anonymous key is used, this means the post request was made through the [
 Libraries used for mail: 
   
   * php: [phpmailer](https://github.com/PHPMailer/PHPMailer), licence: [LGPL](https://github.com/PHPMailer/PHPMailer/blob/master/LICENSE)
-  * Node.js: [nodemailer](https://github.com/nodemailer/nodemailer),licence: [MIT](https://github.com/nodemailer/nodemailer/blob/master/LICENSE)
+  * Node.js: [nodemailer](https://github.com/nodemailer/nodemailer), licence: [MIT](https://github.com/nodemailer/nodemailer/blob/master/LICENSE)
   * Python: [Flask-Mail](https://github.com/mattupstate/flask-mail), licence: [BSD 3-clause](https://github.com/mattupstate/flask-mail/blob/master/LICENSE)
   ### Instructions:
   #### Node.js:
     cd node && npm install
-  Change mail settings on config.js file:
+  Change mail settings on [config.js](node/config.js) file:
 
     mailConfig: {
       host: 'smtp.example.com',
@@ -45,7 +45,7 @@ Libraries used for mail:
     npm run start
 
   #### php:
-  change mail options on php/config.php:
+  change mail options on [config.php](php/config.php):
 
     define('MAIL_USER','user@example.com');
     define('MAIL_PASSWORD','very_secret');
@@ -60,7 +60,7 @@ Libraries used for mail:
   from virtualenv or not:
   
     cd python && pip install -r requirements.txt
-  change mail settings on flic.py:
+  change mail settings on [flic.py](python/flic.py):
   
     MAIL_FROM = 'user@example.com'
     MAIL_NAME = 'User First Name - Last Name'
