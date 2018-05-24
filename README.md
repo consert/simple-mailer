@@ -11,13 +11,13 @@ The apps expect a posted json (content-type:application/json) in a format like:
             "latitude": float,
             "longitude": float
           },
-        "user": "string"|null (if anonymous)
-        "mailto": "user@exaplme.com",
+        "user": "string"
+        "serial_number": "string",
         "alias": "string",
         "uuid": "string"
         "mac": "string"
     }
-If the anonymous key is used, this means the post request was made through the [PPCG](https://vm15.openstack.puas.gr) Privacy Protection Communication Gateway     
+If the anonymous key is used the fields "user", "alias", "serial_number", "uuid", "location" and "mac" are empty strings.     
   
 Libraries used for mail: 
   
