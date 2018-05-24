@@ -71,6 +71,7 @@ function getLocationString($locationArray) {
  */
 function getMailBody($postedData) {
     $data = $postedData;
+    // Backwards compatibility
     if (array_key_exists('data', $postedData)){
         $data = $postedData['data'];
     }

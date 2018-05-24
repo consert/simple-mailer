@@ -3,7 +3,6 @@ Three examples for logging and sending emails using smtp when receiving a POST r
 The apps expect a posted json (content-type:application/json) in a format like:
 
     {
-      "data": {
         "anonymous": Bool,
         "description": "string",
         "eventDateTime": "string",
@@ -12,9 +11,11 @@ The apps expect a posted json (content-type:application/json) in a format like:
             "latitude": float,
             "longitude": float
           },
-         "user": "string"|null (if anonymous)
-      },
-      "mailto": "user@exaplme.com"
+        "user": "string"|null (if anonymous)
+        "mailto": "user@exaplme.com",
+        "alias": "string",
+        "uuid": "string"
+        "mac": "string"
     }
 If the anonymous key is used, this means the post request was made through the [PPCG](https://vm15.openstack.puas.gr) Privacy Protection Communication Gateway     
   

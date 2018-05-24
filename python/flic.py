@@ -131,6 +131,7 @@ def get_mail_body(posted_data):
     :return String mail_body: the string in readable format to be used as mail body
     """
     json_data = posted_data
+    # Backwards compatibility
     if 'data' in posted_data:
         json_data = posted_data['data']
 

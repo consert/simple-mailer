@@ -28,6 +28,7 @@ module.exports = {
   getBody: (json) => {
     let body = '';
     let parts = json;
+    // Backwards compatibility
     if ('data' in json) {
       parts = json['data'];
     }
