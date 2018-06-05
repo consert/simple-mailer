@@ -3,6 +3,8 @@ Three examples for logging and sending emails using smtp when receiving a POST r
 The apps expect a posted json (content-type:application/json) in a format like:
 
     {
+        "mailto": "string",
+        "tagret": "string",
         "anonymous": Bool,
         "description": "string",
         "eventDateTime": "string",
