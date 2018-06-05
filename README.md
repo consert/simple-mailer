@@ -4,7 +4,7 @@ The apps expect a posted json (content-type:application/json) in a format like:
 
     {
         "mailto": "string",
-        "tagret": "string",
+        "target": "string",
         "anonymous": Bool,
         "description": "string",
         "eventDateTime": "string",
