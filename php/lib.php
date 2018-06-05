@@ -91,8 +91,8 @@ function getMailBody($postedData) {
             case KEY_USER:
                 if ($value) {
                     $user = (string)$value;
-                    if (is_null($anonymous)) {
-                        $anonymous = null;
+                    if (is_null($user)) {
+                        $anonymous = true;
                     }
                 }
                 continue;
