@@ -12,8 +12,7 @@ The apps expect a posted json (content-type:application/json) in a format like:
             "longitude": float
         }
     }
-If the anonymous key is used the fields "user", "alias", "serial_number", "uuid", "location" and "mac" are empty strings.     
-  
+ 
 Libraries used for mail: 
   
   * php: [phpmailer](https://github.com/PHPMailer/PHPMailer), licence: [LGPL](https://github.com/PHPMailer/PHPMailer/blob/master/LICENSE)
