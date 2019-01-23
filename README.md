@@ -4,20 +4,13 @@ The apps expect a posted json (content-type:application/json) in a format like:
 
     {
         "mailto": "string",
-        "target": "string",
-        "anonymous": Bool,
-        "description": "string",
-        "eventDateTime": "string",
+        "message": "string",
+        "datetime": "string",
         "location": {
             "address": "string",
             "latitude": float,
             "longitude": float
-          },
-        "user": "string"
-        "serial_number": "string",
-        "alias": "string",
-        "uuid": "string"
-        "mac": "string"
+        }
     }
 If the anonymous key is used the fields "user", "alias", "serial_number", "uuid", "location" and "mac" are empty strings.     
   
@@ -60,7 +53,7 @@ Libraries used for mail:
     define('SMTP_PORT',587);
     
   #### Python:
-  from virtualenv or not:
+  in virtualenv or not:
   
     cd python && pip install -r requirements.txt
   change mail settings on [flic.py](python/flic.py):

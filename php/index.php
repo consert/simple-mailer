@@ -1,16 +1,8 @@
 <?php
 require_once __DIR__.'/lib.php';
 
-header('Content-Type: application/json');
-$target = __DIR__.'/message.json';
-
 $data = [];
 $json = json_decode(file_get_contents('php://input', true));
-
-// ensure we have a json file to read it's contents
-if (!file_exists($target)) {
-    file_put_contents($target,json_encode($data, JSON_UNESCAPED_UNICODE));
-}
 
 if ($json) {
     // close the connection before processing
@@ -19,10 +11,11 @@ if ($json) {
     ignore_user_abort(); // optional
     ob_start();
     if ($json) {
+        header('Content-Type: application/json');
         echo json_encode(['success' => true]);
     } else {
-        $data = file_get_contents($target);
-        echo $data;
+        header("HTTP/1.0 405 Method Not Allowed");
+        die();
     }
     $size = ob_get_length();
     header("Content-Length: $size");
@@ -33,16 +26,14 @@ if ($json) {
     }
     // Do processing here
     $data = (array) $json;
-    $json_data = json_encode($data, JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-    file_put_contents($target,$json_data);
 }
 if (array_key_exists('mailto', $data) ) {
     $mailto = [$data['mailto']];
     $toSend = getMailBody($data);
     sendSmtpMail($mailto, MAIL_USER, MAIL_NAME, MAIL_SUBJECT, $toSend);
 } else {
-    $data = file_get_contents($target);
-    echo $data;
+    header("HTTP/1.0 405 Method Not Allowed");
+    die();
 }
 if ($json) {
     $data = (array) $json;

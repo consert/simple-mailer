@@ -33,30 +33,27 @@ module.exports = {
       parts = json['data'];
     }
     // parts.keys
-    if (config.KEY_ANONYMOUS in parts && parts[config.KEY_ANONYMOUS] === true) {
-      body += 'A user with hidden id\n'
-    } else if (config.KEY_USER in parts) {
-      body += `The user with the button ${parts[config.KEY_USER]},\n`
-    }
-    body += 'has sent on ';
-    if (config.KEY_EVENT_DATETIME in parts) {
-      body += `${parts[config.KEY_EVENT_DATETIME]},\n`;
+    body += 'TRILLION Button Message: \nDatetime: ';
+    if (config.KEY_DATETIME in parts) {
+      body += `${parts[config.KEY_DATETIME]},\n`;
     } else {
       body += new Date().toString();
-      body += ',\n';
+      body += '\n';
     }
-    body += 'from ';
+    body += 'Location: ';
     if (config.KEY_LOCATION in parts){
       const locationString = getLocationString(parts[config.KEY_LOCATION]);
-      if (locationString) {
-        body += `location: ${locationString},\n`
+      if (locationString !== null && locationString.length > 1) {
+        body += `${locationString}\n`;
       } else {
-        body += 'an unknown location,\n'
+        body += 'Unknown\n';
       }
+    } else{
+      body += 'Unknown\n';
     }
-    body += 'the message: \n';
-    if (config.KEY_DESCRIPTION in parts){
-      body += `"${parts[config.KEY_DESCRIPTION]}"`;
+    body += 'Message: ';
+    if (config.KEY_MESSAGE in parts){
+      body += `"${parts[config.KEY_MESSAGE]}"`;
     }
     return body;
   },
@@ -71,4 +68,3 @@ module.exports = {
     });
   }
 };
-

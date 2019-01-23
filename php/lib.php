@@ -1,6 +1,7 @@
 <?php
-
-require __DIR__.'/phpmailer/PHPMailerAutoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
 require_once  __DIR__.'/config.php';
 
 /**
@@ -14,26 +15,28 @@ require_once  __DIR__.'/config.php';
  * @return bool: if mail is successfully sent
  */
 function sendSmtpMail($to, $from, $from_name, $subject, $body) {
-    $mail = new PHPMailer();
-    $mail->CharSet = 'UTF-8';
-    $mail->isSMTP();
-    $mail->SMTPDebug = 0;
-    $mail->SMTPAuth = SMTP_AUTH;
-    $mail->SMTPSecure = SMTP_SECURE;
-    $mail->Host = SMTP_HOST;
-    $mail->Port = SMTP_PORT;
-    $mail->Username = MAIL_USER;
-    $mail->Password = MAIL_PASSWORD;
-    $mail->setFrom($from, $from_name);
-    $mail->Subject = $subject;
-    $mail->Body = $body;
-    foreach ($to as $resp) {
-        $mail->addAddress($resp);
-    }
-    if(!$mail->send()) {
-        return false;
-    } else {
+    try {
+        $mail = new PHPMailer();
+        $mail->CharSet = 'UTF-8';
+        $mail->isSMTP();
+        $mail->SMTPDebug = 0;
+        $mail->SMTPAuth = SMTP_AUTH;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Host = SMTP_HOST;
+        $mail->Port = SMTP_PORT;
+        $mail->Username = MAIL_USER;
+        $mail->Password = MAIL_PASSWORD;
+        $mail->setFrom($from, $from_name);
+        $mail->Subject = $subject;
+        $mail->Body = $body;
+        foreach ($to as $resp) {
+            $mail->addAddress($resp);
+        }
+        $mail->send();
         return true;
+    } catch (Exception $e) {
+        logData($e->in);
+        return false;
     }
 }
 
@@ -53,12 +56,11 @@ function getLocationString($locationArray) {
     }
     if (is_null($location) &&
         array_key_exists(KEY_LOCATION_LATITUDE, $locationArray) &&
-        array_key_exists(KEY_LOCATION_LONGITUDE,$locationArray)) {
-        if (floatval($locationArray[KEY_LOCATION_LATITUDE]) !== 0 &&
-            floatval($locationArray[KEY_LOCATION_LONGITUDE]) != 0) {
+        array_key_exists(KEY_LOCATION_LONGITUDE,$locationArray) &&
+        floatval($locationArray[KEY_LOCATION_LATITUDE]) !== 0 &&
+        floatval($locationArray[KEY_LOCATION_LONGITUDE]) != 0) {
             $location = KEY_LOCATION_LATITUDE.': '.$locationArray[KEY_LOCATION_LATITUDE] .
                 ', '.KEY_LOCATION_LONGITUDE. ': '.$locationArray[KEY_LOCATION_LONGITUDE];
-        }
     }
     return $location;
 }
@@ -75,56 +77,27 @@ function getMailBody($postedData) {
     if (array_key_exists('data', $postedData)){
         $data = $postedData['data'];
     }
-    $anonymous = null;
-    $description = null;
-    $user = null;
+    $message = null;
     $location = null;
     $eventDateTime = null;
-
-    foreach ($data as $key => $value) {
-        switch ($key) {
-            case KEY_ANONYMOUS:
-                if ($value) {
-                    $anonymous = boolval($value) || null;
-                }
-                continue;
-            case KEY_USER:
-                if ($value) {
-                    $user = (string)$value;
-                    if (is_null($user)) {
-                        $anonymous = true;
-                    }
-                }
-                continue;
-            case KEY_DESCRIPTION:
-                if ($value) {
-                    $description = $value;
-                }
-                continue;
-            case KEY_EVENT_DATETIME:
-                if ($value) {
-                    $eventDateTime = (string)$value;
-                }
-                continue;
-            case KEY_LOCATION:
-                if ($value) {
-                    $postedLocation = $value;
-                    if (is_object($value)){
-                        $postedLocation = (array)($value);
-                    }
-                    $location = getLocationString($postedLocation);
-                } else {
-                    $location = null;
-                }
-        }
+    $data_keys = array_keys($data);
+    if (in_array(KEY_MESSAGE, $data_keys)) {
+        $message = $data[KEY_MESSAGE];
     }
-    $str = $anonymous ? 'A user with hidden id' : 'The user with the button ' .$user. ',';
-    $str .= PHP_EOL.'has sent on ';
-    $str .= $eventDateTime ? (string)$eventDateTime : date('Y-m-d H:i:s');
-    $str .= ','.PHP_EOL.'from ';
-    $str .= $location ? 'location: ' . $location : 'an unknown location,';
-    $str .= PHP_EOL. 'the message: '.PHP_EOL. '"'.$description . '"'.PHP_EOL;
-    return $str;
+    if (in_array(KEY_DATETIME, $data_keys)) {
+        $message = (string)$data[KEY_DATETIME];
+    }
+    if (in_array(KEY_LOCATION, $data_keys)) {
+        $postedLocation = $data[KEY_LOCATION];
+        if (is_object($postedLocation)){
+            $postedLocation = (array)($postedLocation);
+        }
+        $location = getLocationString($postedLocation);
+    }
+    $str = 'TRILLION Button Message: '.PHP_EOL. 'Datetime: ';
+    $str .= $eventDateTime ? (string)$eventDateTime : date('Y-m-d H:i:s').PHP_EOL.'Location: ';
+    $str .= (!is_null($location) && strlen((string) ($location)) > 0) ? $location : 'Unknown';
+    return $str . PHP_EOL.'Message: "'. $message . '"'.PHP_EOL;
 }
 
 /**
@@ -134,7 +107,6 @@ function getMailBody($postedData) {
  * @param $data
  */
 function logData($data){
-//    $data = date('Y-m-d H:i:s').PHP_EOL.$request_data.PHP_EOL;
     $file_head = 'log_';
     $file_ending = '.txt';
     $logs_dir = __DIR__.'/logs';
