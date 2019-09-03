@@ -1,3 +1,6 @@
+"""
+# coding=utf-8
+"""
 import os.path
 import logging.handlers
 from datetime import datetime
@@ -5,6 +8,8 @@ from threading import Thread
 
 from flask import Flask, abort, request, jsonify
 from flask_mail import Mail, Message
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -16,17 +21,20 @@ KEY_LOCATION_LATITUDE = 'latitude'
 KEY_LOCATION_LONGITUDE = 'longitude'
 KEY_LOCATION_ADDRESS = 'address'
 
-MAIL_FROM = 'user@example.com'
-MAIL_NAME = 'User First Name - Last Name'
-MAIL_PASS = 'very_secret'
-MAIL_SUBJECT = 'Mail Subject'
+SMTP_LOGIN = os.getenv('SMTP_LOGIN', 'user@example.com')
+SMTP_FROM = os.getenv('SMTP_FROM', 'User First Name - Last Name')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'very_secret')
+MAIL_SUBJECT = os.getenv('SMTP_MAIL_SUBJECT', 'Mail Subject')
+SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.example.com')
+SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+SMTP_SECURE = os.getenv('SMTP_SECURE', '')
 app.config.update(
-    MAIL_SERVER='smtp.example.com',
-    MAIL_PORT=587,
-    MAIL_USE_SSL=False,
-    MAIL_USE_TLS=True,
-    MAIL_USERNAME=MAIL_FROM,
-    MAIL_PASSWORD=MAIL_PASS
+    MAIL_SERVER=SMTP_SERVER,
+    MAIL_PORT=SMTP_PORT,
+    MAIL_USE_SSL=SMTP_SECURE == 'ssl',
+    MAIL_USE_TLS=SMTP_SECURE == 'tls',
+    MAIL_USERNAME=SMTP_LOGIN,
+    MAIL_PASSWORD=SMTP_PASSWORD
 )
 
 mail = Mail(app)
@@ -36,35 +44,51 @@ logs_dir = os.path.join(app.root_path, 'logs')
 if not os.path.isdir(logs_dir):
     os.mkdir(logs_dir)
 
-LOG_FILENAME = os.path.join(logs_dir, 'flic.log')
-logger = logging.getLogger("Flic Logs")
-logger.setLevel(logging.DEBUG)
+LOG_FILENAME = os.path.join(logs_dir, 'mailer.log')
+logger = logging.getLogger("Mailer Logs")
+logger.setLevel(logging.INFO)
 handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=5000000, backupCount=5)
 logger.addHandler(handler)
 
 
 # decorator
-def a_sync(f):
+def a_sync(f: callable) -> callable:
+    """
+
+    :param f: the function to run
+    :return: the wrapper of the the new thread
+    """
     def wrapper(*args, **kwargs):
+        """
+
+        :param args: The function args
+        :param kwargs: The function kwargs
+        """
         thr = Thread(target=f, args=args, kwargs=kwargs)
         thr.start()
 
     return wrapper
 
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET', 'POST'])
 def root():
-
-    # POST Request
+    """
+        The one endpoint
+    :return: http response
+    """
     if not request.json:
         return abort(400)
-    json_data = request.json
+    else:
+        json_data = request.json
+    mailto = request.args.get('mailto', None)
     log_data = json_data.copy()
     log_data['log_datetime'] = str(datetime.now())
     logger.info(log_data)
     # Send mail
     if 'mailto' in json_data:
-        send_email(json_data)
+        mailto = json_data['mailto']
+    if mailto is not None:
+        send_email(json_data, mailto)
     return jsonify(success=True)
 
 
@@ -105,7 +129,7 @@ def get_mail_body(posted_data):
     # Backwards compatibility
     if 'data' in posted_data:
         json_data = posted_data['data']
-    mail_body = 'TRILLION Button Message: \nDatetime: '
+    mail_body = 'Details: \nDatetime: '
     if KEY_DATETIME in json_data:
         mail_body += str(json_data[KEY_DATETIME])
     else:
@@ -123,15 +147,18 @@ def get_mail_body(posted_data):
     return mail_body
 
 
-def send_email(json_data):
+def send_email(json_data, to):
     """Prepares a mail Message to be sent as a background task with Flask-Mail
 
+    :param to: list[str] the list of recipients
     :param dict json_data: The dictionary that has info for the mail
     """
+    if not isinstance(to, list):
+        to = [to]
     msg = Message(subject=MAIL_SUBJECT,
-                  recipients=[json_data['mailto']],
+                  recipients=to,
                   body=get_mail_body(json_data),
-                  sender=MAIL_NAME + '<' + MAIL_FROM + '>')
+                  sender=SMTP_LOGIN + '<' + SMTP_FROM + '>')
     send_async_email(msg)
 
 

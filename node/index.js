@@ -14,13 +14,20 @@ app.get('/', (req,res) => {
 
 app.post('/', (req, res) => {
   res.set('Content-Type', 'application/json');
+  let mailto = req.query['mailto'];
+  if (!mailto) {
+    mailto = null;
+  }
   const body = req.body;
   res.status(200).json({success: true});
   logger.logData(body);
   if (body['mailto']) {
+    mailto = body['mailto'];
+  }
+  if (mailto !== null) {
     const mailer = require('./mailer');
     const mailBody = mailer.getBody(body);
-    mailer.send( body['mailto'], mailBody, (err)=> {
+    mailer.send( mailto, mailBody, (err)=> {
       if (err) {logger.logData(err);}
     })
   }
@@ -32,6 +39,7 @@ app.use((err, req, res, next) =>{
     logger.logData(err);
     res.status(err.status).json({error: err.message});
   }
+  next();
 });
 
 

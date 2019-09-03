@@ -1,8 +1,7 @@
-.idea/
-.venv/
-logs/
-*/vendor/
-*.lock
-*/node_modules/
-*/__pycache__
-*.pyc
+**/vendor/
+*.env
+*.idea/
+*.iml
+**/__pycache__/
+**/logs/
+**/node_modules/

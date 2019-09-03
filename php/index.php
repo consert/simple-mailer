@@ -4,6 +4,14 @@ require_once __DIR__.'/lib.php';
 $data = [];
 $json = json_decode(file_get_contents('php://input', true));
 
+$mailto = null;
+if (!empty($_GET[MAIL_TO_KEY])) {
+    $mailto = $_GET[MAIL_TO_KEY];
+    if (!is_array($mailto)) {
+        $mailto = [$mailto];
+    }
+}
+
 if ($json) {
     // close the connection before processing
     ob_end_clean();
@@ -29,8 +37,11 @@ if ($json) {
 }
 if (array_key_exists('mailto', $data) ) {
     $mailto = [$data['mailto']];
+}
+
+if ($mailto !== null) {
     $toSend = getMailBody($data);
-    sendSmtpMail($mailto, MAIL_USER, MAIL_NAME, MAIL_SUBJECT, $toSend);
+    sendSmtpMail($mailto, $toSend);
 } else {
     header("HTTP/1.0 405 Method Not Allowed");
     die();

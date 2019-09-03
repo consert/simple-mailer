@@ -3,8 +3,26 @@
 const nodemailer = require('nodemailer');
 
 const config = require('./config');
+const dotenv = require('dotenv');
+const result = dotenv.config();
 
-const transporter = nodemailer.createTransport(config.mailConfig);
+if (result.error) {
+  throw result.error
+}
+
+const mailConfig =  {
+  host: process.env.SMTP_SERVER,
+  port: process.env.SMTP_PORT,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_LOGIN,
+    pass: process.env.SMTP_PASSWORD
+  }
+};
+const mailerName  = process.env.SMTP_FROM;
+const mailSubject = process.env.SMTP_MAIL_SUBJECT;
+
+const transporter = nodemailer.createTransport(mailConfig);
 
 const getLocationString = (locationObject) => {
   if (config.KEY_LOCATION_ADDRESS in locationObject){
@@ -33,7 +51,7 @@ module.exports = {
       parts = json['data'];
     }
     // parts.keys
-    body += 'TRILLION Button Message: \nDatetime: ';
+    body += 'Details: \nDatetime: ';
     if (config.KEY_DATETIME in parts) {
       body += `${parts[config.KEY_DATETIME]},\n`;
     } else {
@@ -59,9 +77,9 @@ module.exports = {
   },
   send: (receiver, text, then) => {
     transporter.sendMail({
-      from: `${config.mailerName} <${config.mailConfig.auth.user}>`,
+      from: `${mailerName} <${mailConfig.auth.user}>`,
       to: receiver,
-      subject: config.mailSubject,
+      subject: mailSubject,
       text
     }, (err, info) => {
       then(err,info)

@@ -8,26 +8,24 @@ require_once  __DIR__.'/config.php';
  * Sends email using smtp (phpmailer)
  *
  * @param array: $to: the recipient(s)
- * @param string: $from: the sender's email
- * @param string: $from_name: the sender's name
- * @param string: $subject: the mail's subject
  * @param string: $body: the mail's body
  * @return bool: if mail is successfully sent
  */
-function sendSmtpMail($to, $from, $from_name, $subject, $body) {
+function sendSmtpMail($to, $body) {
+    $from = getenv('SMTP_LOGIN');
     try {
         $mail = new PHPMailer();
         $mail->CharSet = 'UTF-8';
         $mail->isSMTP();
         $mail->SMTPDebug = 0;
-        $mail->SMTPAuth = SMTP_AUTH;
-        $mail->SMTPSecure = SMTP_SECURE;
-        $mail->Host = SMTP_HOST;
-        $mail->Port = SMTP_PORT;
-        $mail->Username = MAIL_USER;
-        $mail->Password = MAIL_PASSWORD;
-        $mail->setFrom($from, $from_name);
-        $mail->Subject = $subject;
+        $mail->SMTPAuth = (string)getenv('SMTP_AUTH') === 'true';
+        $mail->SMTPSecure = getenv('SMTP_SECURE');
+        $mail->Host = getenv('SMTP_SERVER');
+        $mail->Port = (int)getenv('SMTP_PORT');
+        $mail->Username = getenv('SMTP_LOGIN');
+        $mail->Password = getenv('SMTP_PASSWORD');
+        $mail->setFrom($from, getenv('SMTP_FROM'));
+        $mail->Subject = getenv('SMTP_MAIL_SUBJECT');
         $mail->Body = $body;
         foreach ($to as $resp) {
             $mail->addAddress($resp);
@@ -35,7 +33,7 @@ function sendSmtpMail($to, $from, $from_name, $subject, $body) {
         $mail->send();
         return true;
     } catch (Exception $e) {
-        logData($e->in);
+        logData($e->getMessage());
         return false;
     }
 }
@@ -94,7 +92,7 @@ function getMailBody($postedData) {
         }
         $location = getLocationString($postedLocation);
     }
-    $str = 'TRILLION Button Message: '.PHP_EOL. 'Datetime: ';
+    $str = 'Details: '.PHP_EOL. 'Datetime: ';
     $str .= $eventDateTime ? (string)$eventDateTime : date('Y-m-d H:i:s').PHP_EOL.'Location: ';
     $str .= (!is_null($location) && strlen((string) ($location)) > 0) ? $location : 'Unknown';
     return $str . PHP_EOL.'Message: "'. $message . '"'.PHP_EOL;
